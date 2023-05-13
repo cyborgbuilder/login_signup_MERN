@@ -14,9 +14,18 @@ router.post("/", async (req, res) => {
         if(!user)
             return res.status(401).send({ message: "Invalid Email or Password "})
 
+        const validPassword = await bcrypt.compare(
+            req.body.password, user.password
+        );
+        if(!validPassword)
+            return res.status(401).send({ message: "Invalid Password" });
+
+        const token = user.generateAuthToken();
+        res.status(200).send({ data: token, message: "Logged in successfully"})
+
 
     }catch{
-
+        res.status(500).send({ message: "Internal Server Error "})
     }
 })
 
@@ -27,3 +36,5 @@ const validate = (data) => {
     });
     return schema.validate(data);
 }
+
+module.exports = router;
